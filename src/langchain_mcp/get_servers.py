@@ -1,4 +1,3 @@
-import asyncio
 import json
 from asyncio import gather
 from contextlib import asynccontextmanager
@@ -6,6 +5,7 @@ from logging import getLogger
 
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from mcp.shared.exceptions import McpError
 from mcp.types import Tool
 from pydantic import BaseModel, Field
 
@@ -133,11 +133,19 @@ class LangChainMcp:
         """
         log.info(f"Listing resources for server: {server_name}")
         async with self.get_session(params) as session:
-            list_resources_results = await session.list_resources()
+            try:
+                list_resources_results = await session.list_resources()
+            except McpError as e:
+                log.error(f"Error listing resources for server {server_name}: {e}")
+                list_resources_results = []
             return server_name, list_resources_results
 
     async def list_all_server_resources(self) -> dict:
         """List the available resources for all servers.
+
+        Return a dictionary of server names and their available resources. If
+        there is an error listing resources for a server, the server name will
+        be logged and the resources will not be included in the output.
 
         Returns:
             dict: The available resources for all servers in the format
@@ -148,4 +156,10 @@ class LangChainMcp:
             for server_name, params in self.server_configs.mcpServers.items()
         ]
         results = await gather(*coroutines)
-        return {name: resources.model_dump(mode="json") for name, resources in results}
+        resource_dict = {}
+        for name, resources in results:
+            if not resources:
+                log.warning(f"No resources found for server: {name}")
+                continue
+            resource_dict[name] = resources.model_dump(mode="json")
+        return resource_dict
