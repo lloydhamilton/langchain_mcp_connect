@@ -1,0 +1,58 @@
+[project]
+name = "langchain-mcp"
+version = "0.1.0"
+description = "Model context protocol connector for LangChain"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Lloyd Hamilton", email = "lloydhamilton1991@gmail.com" }
+]
+dependencies = [
+    "langchain-core>=0.3.30",
+    "mcp>=1.2.0",
+]
+
+[tool.ruff.lint]
+select = [
+    # pydocstyle
+    "D",
+    # Google style
+    "G",
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # pyupgrade
+    "UP",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+    # flake8-annotations
+    "ANN",
+]
+
+ignore = [
+    # flask8-annotations for self
+    "ANN101",
+    "ANN102",
+    "ANN204",
+    "G004",
+    "D100",
+    "D107"
+]
+
+exclude = [
+    "*.ipynb",
+    "__init__.py"
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
