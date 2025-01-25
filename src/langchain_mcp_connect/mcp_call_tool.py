@@ -4,7 +4,7 @@ from langchain_core.tools import tool
 from mcp.types import AnyUrl
 from pydantic import BaseModel, Field
 
-from langchain_mcp.get_servers import LangChainMcp
+from langchain_mcp_connect.get_servers import LangChainMcp
 
 log = logging.getLogger("mcp_call_tool")
 

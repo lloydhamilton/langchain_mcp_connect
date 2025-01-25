@@ -1,5 +1,5 @@
 [project]
-name = "langchain-mcp"
+name = "langchain-mcp-connect"
 version = "0.1.0"
 description = "Model context protocol connector for LangChain"
 readme = "README.md"
