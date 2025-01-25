@@ -60,7 +60,9 @@ jobs:
           # Create and push tag
           git tag -a "v${version}" -m "Release v${version}"
           git push origin "v${version}"
-
-      - name: Release
-        if: steps.check_tag.outputs.exists == 'false'
-        uses: softprops/action-gh-release@v2
+          
+          # Create release
+          gh release create "v${version}" \
+            --title "Release v${version}" \
+            --generate-notes \
+            ./dist/*
