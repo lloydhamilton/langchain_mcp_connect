@@ -4,6 +4,9 @@ name: Continuous Deployment
 # Controls when the action will run. Invokes the workflow on push events but only for the main branch
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 permissions:
   id-token: write # This is required for requesting credentials for trusted publishers
