@@ -136,7 +136,7 @@ class LangChainMcp:
             try:
                 list_resources_results = await session.list_resources()
             except McpError as e:
-                log.error(f"Error listing resources for server {server_name}: {e}")
+                log.warning(f"Error listing resources for server {server_name}: {e}")
                 list_resources_results = []
             return server_name, list_resources_results
 
