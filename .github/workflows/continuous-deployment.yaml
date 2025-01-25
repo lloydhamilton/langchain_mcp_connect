@@ -5,6 +5,9 @@ name: Continuous Deployment
 on:
   workflow_dispatch:
 
+permissions:
+  id-token: write # This is required for requesting credentials for trusted publishers
+
 jobs:
   publish-pypi:
     name: Publish to PyPI
