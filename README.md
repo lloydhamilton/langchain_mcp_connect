@@ -5,13 +5,11 @@
 
 ## Introduction
 This project introduces tools to easily integrate Anthropic Model Context Protocol(MCP) with langchain. 
-It embeds the MCP tools and resources into the system prompt and allows LLMs to interact with them through langchain.
+It provides a simple way to connect to MCP servers and access tools that can be made available to LangChain.
 
 MCP integrations with langchain expands the capabilities of LLM by providing access to an ecosystem 
 of community build servers and additional resources. This means that we do not need to create custom
 tools for each LLM, but rather use the same tools across different LLMs.
-
-For a detail example on how `langchain_mcp_connect` can be used, see this [demo](https://github.com/lloydhamilton/agentic_ai_mcp_demo) project.
 
 ## What is the Model Context Protocol (MCP)?
 The Model Context Protocol (MCP) is an open-source standard released by Anthropic. 
@@ -27,15 +25,16 @@ in the model context protocol. The schemas of input arguments for tools and reso
 are injected into the system prompt and form part of the initial prompt. Before starting,
 please ensure you meet the pre-requisites.
 
+For a detail example on how `langchain_mcp_connect` can be used, see this [demo](https://github.com/lloydhamilton/agentic_ai_mcp_demo) project.
+
 ### Pre requisites
 
-1. Install the python environment with [uv](https://astral.sh/blog/uv)
-```bash
-uv add langchain-mcp-connect langchain-openai langgraph
-```
+1. Install [uv](https://astral.sh/blog/uv)
 
-2. Define your tool within `claude_mcp_config.json` file in the root directory. For a list 
-of available tools see [here](https://github.com/modelcontextprotocol/servers/tree/main).
+### Defining a tool
+
+Define your tool within `claude_mcp_config.json` file in the root directory. For a list 
+of available tools and how to confiure tools see [here](https://github.com/modelcontextprotocol/servers/tree/main). 
 ```json
 {
   "mcpServers": {
@@ -65,94 +64,22 @@ of available tools see [here](https://github.com/modelcontextprotocol/servers/tr
 }
 ```
 
-3. Define environment variables. `langchain_mcp_connect` is able to inject secrets from
-the current environment. To do so, prefix the name of your environment variable with 
+### Environment Variables
+
+Managing secrets is a key aspect of any project. The `langchain_mcp_connect` tool is 
+able to inject secrets from the current environment. 
+To do so, prefix the name of your environment variable with 
 `ENV_` in `claude_mcp_config.json` to inject envrionment variables into the current
 context. In the example above, ensure you have defined `GITHUB_PERSONAL_ACCESS_TOKEN`
 in your current environment with:
 
 ```bash
 export GITHUB_PERSONAL_ACCESS_TOKEN="<YOUR_TOKEN_HERE>"
+export OPENAI_API_KEY="<YOUR_KEY_HERE>"
 ```
 
-### Usage
+### Running the example
 
-```python
-import argparse
-import asyncio
-import logging
-
-from dotenv import load_dotenv
-from langchain_core.messages import HumanMessage
-from langchain_mcp_connect import MspToolPrompt, call_tool
-from langchain_mcp_connect.get_servers import LangChainMcp
-from langchain_openai import ChatOpenAI
-from langgraph.prebuilt import create_react_agent
-
-load_dotenv()
-
-logging.basicConfig(level=logging.INFO)
-log = logging.getLogger("LangChainMcp")
-
-
-def list_tools() -> dict:
-    """List all available tools.
-
-    Calls all list tools method for all configured MCP servers.
-    """
-    mcp = LangChainMcp()
-    return asyncio.run(mcp.fetch_all_server_tools())
-
-
-def list_resources() -> dict:
-    """List all available resources.
-
-    Calls all list resources method for all configured MCP servers.
-    """
-    mcp = LangChainMcp()
-    return asyncio.run(mcp.list_all_server_resources())
-
-
-async def invoke_agent(
-    model: ChatOpenAI, query: str, tools: dict, resources: dict
-) -> dict:
-    """Invoke the agent with the given query."""
-    agent_executor = create_react_agent(model, [call_tool])
-
-    # Create a system prompt and a human message
-    system_prompt = MspToolPrompt(resources=resources).get_prompt()
-    human_message = HumanMessage(content=query)
-
-    # Invoke the agent
-    r = await agent_executor.ainvoke(
-        input=dict(messages=[system_prompt, human_message])
-    )
-
-    return r
-
-
-if __name__ == "__main__":
-    # Parse arguments
-    parser = argparse.ArgumentParser(
-        description="Langchain Model Context Protocol demo"
-    )
-    parser.add_argument("-q", "--query", type=str, help="Query to be executed")
-    args = parser.parse_args()
-
-    # Define the llm
-    llm = ChatOpenAI(
-        model="gpt-4o",
-        model_kwargs={
-            "max_tokens": 4096,
-            "temperature": 0.0,
-        },
-    )
-
-    # Invoke the agent
-    response = asyncio.run(
-        invoke_agent(llm, args.query, list_tools(), list_resources())
-    )
-
-    log.info(response)
+```bash
+uv run src/example/agent.py
 ```
-

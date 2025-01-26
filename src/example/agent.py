@@ -4,13 +4,14 @@
 #   "langgraph>=0.2.53",
 #   "langchain-openai>=0.2.10",
 #   "langchain-community>=0.3.9",
-#   "langchain-mcp-connect",
+#   "langchain-mcp-connect>=2.0.0",
 # ]
 # ///
 
 import argparse
 import asyncio
 import logging
+import os
 
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
@@ -23,6 +24,13 @@ load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger("LangChainMcp")
+
+if "GITHUB_PERSONAL_ACCESS_TOKEN" not in os.environ:
+    raise ValueError(
+        "Please set the GITHUB_PERSONAL_ACCESS_TOKEN environment variable."
+    )
+if "OPENAI_API_KEY" not in os.environ:
+    raise ValueError("Please set the OPENAI_API_KEY environment variable.")
 
 
 async def invoke_agent(
