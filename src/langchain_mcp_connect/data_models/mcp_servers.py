@@ -62,7 +62,10 @@ class StdioServerParameters(StdioServerParameters):
         default_env = get_default_environment()
         for key in env:
             if env[key].startswith("ENV_"):
-                env[key] = os.environ.get(env[key][4:])
+                env_var = os.environ.get(env[key][4:])
+                if env_var is None:
+                    raise ValueError(f"Environment variable {env[key][4:]} not found.")
+                env[key] = env_var
         return default_env | env
 
 

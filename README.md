@@ -11,6 +11,11 @@ MCP integrations with langchain expands the capabilities of LLM by providing acc
 of community build servers and additional resources. This means that we do not need to create custom
 tools for each LLM, but rather use the same tools across different LLMs.
 
+## Installation
+```bash
+pip install langchain-mcp-connect
+```
+
 ## What is the Model Context Protocol (MCP)?
 The Model Context Protocol (MCP) is an open-source standard released by Anthropic. 
 The Model Context Protocol highlights the importance of tooling standardisation through open protocols. 
@@ -34,7 +39,7 @@ For a detail example on how `langchain_mcp_connect` can be used, see this [demo]
 ### Defining a tool
 
 Define your tool within `claude_mcp_config.json` file in the root directory. For a list 
-of available tools and how to confiure tools see [here](https://github.com/modelcontextprotocol/servers/tree/main). 
+of available tools and how to configure tools see [here](https://github.com/modelcontextprotocol/servers/tree/main). 
 ```json
 {
   "mcpServers": {
@@ -65,11 +70,10 @@ of available tools and how to confiure tools see [here](https://github.com/model
 ```
 
 ### Environment Variables
-
 Managing secrets is a key aspect of any project. The `langchain_mcp_connect` tool is 
 able to inject secrets from the current environment. 
 To do so, prefix the name of your environment variable with 
-`ENV_` in `claude_mcp_config.json` to inject envrionment variables into the current
+`ENV_` in `claude_mcp_config.json` to inject environment variables into the current
 context. In the example above, ensure you have defined `GITHUB_PERSONAL_ACCESS_TOKEN`
 in your current environment with:
 
