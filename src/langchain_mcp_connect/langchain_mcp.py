@@ -1,3 +1,4 @@
+import asyncio
 import json
 from asyncio import gather
 from contextlib import asynccontextmanager
@@ -172,3 +173,7 @@ class LangChainMcp:
         ]
         results = await gather(*coroutines)
         return [item for sublist in results for item in sublist]
+
+    def list_mcp_tools(self) -> list[BaseTool]:
+        """Make async call to list all the available tools for all mcp servers."""
+        return asyncio.run(self.fetch_all_server_tools())
