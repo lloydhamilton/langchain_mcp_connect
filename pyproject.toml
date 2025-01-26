@@ -8,6 +8,7 @@ authors = [
     { name = "Lloyd Hamilton", email = "lloydhamilton1991@gmail.com" }
 ]
 dependencies = [
+    "jsonschema-pydantic>=0.6",
     "langchain-core>=0.3.30",
     "mcp>=1.2.0",
 ]

@@ -1,4 +1,7 @@
-# Langchain Model Context Protocol Connector
+
+<h1 align="center">
+  Langchain Model Context Protocol Connector
+</h1>
 
 ## Introduction
 This project introduces tools to easily integrate Anthropic Model Context Protocol(MCP) with langchain. 
@@ -8,7 +11,7 @@ MCP integrations with langchain expands the capabilities of LLM by providing acc
 of community build servers and additional resources. This means that we do not need to create custom
 tools for each LLM, but rather use the same tools across different LLMs.
 
-For a detail example on how `langchain_mcp_connect` can be used, see this [demo](https://github.com/lloydhamilton/agentic_ai_mcp_demo)
+For a detail example on how `langchain_mcp_connect` can be used, see this [demo](https://github.com/lloydhamilton/agentic_ai_mcp_demo) project.
 
 ## What is the Model Context Protocol (MCP)?
 The Model Context Protocol (MCP) is an open-source standard released by Anthropic. 
@@ -117,7 +120,7 @@ async def invoke_agent(
     agent_executor = create_react_agent(model, [call_tool])
 
     # Create a system prompt and a human message
-    system_prompt = MspToolPrompt(tools=tools, resources=resources).get_prompt()
+    system_prompt = MspToolPrompt(resources=resources).get_prompt()
     human_message = HumanMessage(content=query)
 
     # Invoke the agent
