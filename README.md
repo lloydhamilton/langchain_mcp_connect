@@ -3,6 +3,8 @@
   Langchain Model Context Protocol Connector
 </h1>
 
+https://img.shields.io/github/actions/workflow/status/lloydhamilton/langchain_mcp_connect/continuous-deployment.yaml
+
 ## Introduction
 This project introduces tools to easily integrate Anthropic Model Context Protocol(MCP) with langchain. 
 It provides a simple way to connect to MCP servers and access tools that can be made available to LangChain.
