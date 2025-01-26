@@ -25,11 +25,9 @@ You can find out more about the MCP at https://github.com/modelcontextprotocol a
 
 ## Example usage
 
-The langchain_mcp_connect contain key methods to determine available tools and resources
-in the model context protocol. The schemas of input arguments for tools and resources 
-are injected into the system prompt and form part of the initial prompt. Before starting,
+The langchain_mcp_connect contain key methods to determine available tools
+in the model context protocol. Before starting,
 please ensure you meet the pre-requisites.
-
 For a detail example on how `langchain_mcp_connect` can be used, see this [demo](https://github.com/lloydhamilton/agentic_ai_mcp_demo) project.
 
 ### Pre requisites
