@@ -8,14 +8,12 @@
 # ]
 # ///
 
-import argparse
 import asyncio
 import logging
 import os
 
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
-from langchain_core.tools import BaseTool
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
@@ -34,36 +32,9 @@ if "OPENAI_API_KEY" not in os.environ:
     raise ValueError("Please set the OPENAI_API_KEY environment variable.")
 
 
-async def invoke_agent(
-    model: ChatOpenAI,
-    query: str,
-    langchain_tools: list[BaseTool],
-) -> dict:
-    """Invoke the agent with the given query."""
-    agent_executor = create_react_agent(model, langchain_tools)
-
-    # Create a system prompt and a human message
-    human_message = HumanMessage(content=query)
-
-    # Invoke the agent
-    r = await agent_executor.ainvoke(input=dict(messages=[human_message]))
-
-    return r
-
-
 if __name__ == "__main__":
-    # Parse arguments
-    parser = argparse.ArgumentParser(
-        description="Langchain Model Context Protocol demo"
-    )
-    parser.add_argument(
-        "-q",
-        "--query",
-        type=str,
-        help="Query to be executed",
-        default="What tools do you have access to?",
-    )
-    args = parser.parse_args()
+
+    QUERY = "What tools do you have access to?"
 
     # Define the llm
     llm = ChatOpenAI(
@@ -78,9 +49,11 @@ if __name__ == "__main__":
     mcp = LangChainMcp()
     tools = mcp.list_mcp_tools()
 
-    # Invoke the agent
-    response = asyncio.run(
-        invoke_agent(model=llm, query=args.query, langchain_tools=tools)
-    )
+    # Bind tools to the agent
+    agent_executor = create_react_agent(llm, tools)
+    human_message = dict(messages=[HumanMessage(content=QUERY)])
+
+    # Run the agent asynchronously
+    response = asyncio.run(agent_executor.ainvoke(input=human_message))
 
     log.info(response)
