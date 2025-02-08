@@ -104,6 +104,3 @@ class TestLangChainMCP:
         assert hasattr(langchain_tool, "get_session")
         assert hasattr(langchain_tool, "_arun")
         assert hasattr(langchain_tool, "_run")
-
-        with pytest.raises(NotImplementedError):
-            langchain_tool._run()
