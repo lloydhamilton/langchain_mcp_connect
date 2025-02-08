@@ -8,7 +8,6 @@
 # ]
 # ///
 
-import asyncio
 import logging
 import os
 
@@ -54,6 +53,6 @@ if __name__ == "__main__":
     human_message = dict(messages=[HumanMessage(content=QUERY)])
 
     # Run the agent asynchronously
-    response = asyncio.run(agent_executor.ainvoke(input=human_message))
+    response = agent_executor.invoke(input=human_message)
 
     log.info(response)

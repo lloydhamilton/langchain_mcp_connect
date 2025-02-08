@@ -3,7 +3,6 @@ import json
 from asyncio import gather
 from contextlib import asynccontextmanager
 from logging import getLogger
-from typing import Never
 
 try:
     from jsonschema_pydantic import jsonschema_to_pydantic
@@ -147,8 +146,26 @@ class LangChainMcp:
                     logger.info(f"Session created for {server_name}:{tool.name}")
                     yield session
 
-            def _run(self, **kwargs: dict) -> Never:
-                raise NotImplementedError("Only async operation is supported")
+            def _run(self, **kwargs: dict) -> list:
+                """Execute the tool synchronously.
+
+                Args:
+                    **kwargs: The arguments to pass to the tool.
+
+                Returns:
+                    list: The results from the tool execution.
+                """
+
+                async def _run_async() -> list:
+                    async with self.get_session(params) as session:
+                        logger.info(
+                            f"Calling tool {server_name}:{tool.name} "
+                            f"with arguments {kwargs}"
+                        )
+                        results = await session.call_tool(self.name, kwargs)
+                        return results
+
+                return asyncio.run(_run_async())
 
             async def _arun(self, **kwargs: dict) -> list:
                 async with self.get_session(params) as session:
