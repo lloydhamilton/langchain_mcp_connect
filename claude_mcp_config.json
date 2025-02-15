@@ -2,7 +2,11 @@
   "mcpServers": {
     "git": {
       "command": "uvx",
-      "args": ["mcp-server-git", "--repository", "./"]
+      "args": [
+        "mcp-server-git",
+        "--repository",
+        "./"
+      ]
     },
     "filesystem": {
       "command": "npx",
@@ -21,6 +25,9 @@
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ENV_GITHUB_PERSONAL_ACCESS_TOKEN"
       }
+    },
+    "sseService": {
+      "url": "http://localhost:8000/sse"
     }
   }
 }
