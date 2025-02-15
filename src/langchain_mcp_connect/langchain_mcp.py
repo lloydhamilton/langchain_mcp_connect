@@ -74,20 +74,13 @@ class LangChainMcp:
         ClientSession: The client session for the MCP server.
 
     """
-    if isinstance(server_params, StdioServerParameters):
-      async with (
-        stdio_client(server_params) as (read, write),
-        ClientSession(read, write) as session,
-      ):
-        await session.initialize()
-        yield session
-    else:
-      async with (
-        sse_client(**server_params.model_dump()) as (read, write),
-        ClientSession(read, write) as session,
-      ):
-        await session.initialize()
-        yield session
+    client = stdio_client(server_params) if isinstance(server_params, StdioServerParameters) else sse_client(**server_params.model_dump())
+    async with (
+      client as (read, write),
+      ClientSession(read, write) as session,
+    ):
+      await session.initialize()
+      yield session
 
   async def _fetch_langchain_tools(
       self, server_name: str, params: StdioServerParameters
@@ -147,20 +140,13 @@ class LangChainMcp:
             ClientSession: The client session for the MCP server.
 
         """
-        if isinstance(server_params, StdioServerParameters):
-          async with (
-            stdio_client(server_params) as (read, write),
-            ClientSession(read, write) as session,
-          ):
-            await session.initialize()
-            yield session
-        else:
-          async with (
-            sse_client(**server_params.model_dump()) as (read, write),
-            ClientSession(read, write) as session,
-          ):
-            await session.initialize()
-            yield session
+        client = stdio_client(server_params) if isinstance(server_params, StdioServerParameters) else sse_client(**server_params.model_dump())
+        async with (
+          client as (read, write),
+          ClientSession(read, write) as session,
+        ):
+          await session.initialize()
+          yield session
 
       def _run(self, **kwargs: dict) -> list:
         """Execute the tool synchronously.
