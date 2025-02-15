@@ -7,18 +7,18 @@ from logging import getLogger
 from mcp.client.sse import sse_client
 
 try:
-  from jsonschema_pydantic import jsonschema_to_pydantic
-  from langchain_core.tools import BaseTool
-  from mcp import ClientSession, StdioServerParameters
-  from mcp.client.stdio import stdio_client
-  from mcp.types import ListToolsResult, Tool
-  from pydantic import BaseModel
+    from jsonschema_pydantic import jsonschema_to_pydantic
+    from langchain_core.tools import BaseTool
+    from mcp import ClientSession, StdioServerParameters
+    from mcp.client.stdio import stdio_client
+    from mcp.types import ListToolsResult, Tool
+    from pydantic import BaseModel
 
 except ImportError as e:
-  raise ImportError(
-    f"Please install the required packages by running: {e}"
-    "pip install langchain-core mcp jsonschema-pydantic"
-  ) from e
+    raise ImportError(
+        f"Please install the required packages by running: {e}"
+        "pip install langchain-core mcp jsonschema-pydantic"
+    ) from e
 
 from .data_models.mcp_servers import McpServers, SseServerParameters
 
@@ -26,111 +26,47 @@ log = getLogger("mcp_services.LangChainMcp")
 
 
 class ConfigurationError(Exception):
-  """Error raised when there is an issue with the configuration."""
+    """Error raised when there is an issue with the configuration."""
 
-  pass
+    pass
 
 
 class LangChainMcp:
-  """List all the available tools for all servers."""
+    """List all the available tools for all servers."""
 
-  def __init__(self, config_path: str = "./claude_mcp_config.json"):
-    self.config_path = config_path
-    self._server_configs: McpServers | None = None
+    def __init__(self, config_path: str = "./claude_mcp_config.json"):
+        self.config_path = config_path
+        self._server_configs: McpServers | None = None
 
-  @property
-  def server_configs(self) -> McpServers:
-    """Get the server configurations."""
-    if self._server_configs is None:
-      self._server_configs = self._load_config()
-    return self._server_configs
+    @property
+    def server_configs(self) -> McpServers:
+        """Get the server configurations."""
+        if self._server_configs is None:
+            self._server_configs = self._load_config()
+        return self._server_configs
 
-  def _load_config(self) -> McpServers:
-    """Load mcp server configurations from file."""
-    if self._server_configs is None:
-      try:
-        with open(self.config_path) as f:
-          config_data = json.load(f)
-        self._server_configs = McpServers(**config_data)
-      except FileNotFoundError as error:
-        raise ConfigurationError(
-          f"Configuration file not found: {self.config_path}"
-        ) from error
-      except json.JSONDecodeError as error:
-        raise ConfigurationError(
-          f"Invalid JSON in configuration file: {self.config_path}"
-        ) from error
-    return self._server_configs
+    def _load_config(self) -> McpServers:
+        """Load mcp server configurations from file."""
+        if self._server_configs is None:
+            try:
+                with open(self.config_path) as f:
+                    config_data = json.load(f)
+                self._server_configs = McpServers(**config_data)
+            except FileNotFoundError as error:
+                raise ConfigurationError(
+                    f"Configuration file not found: {self.config_path}"
+                ) from error
+            except json.JSONDecodeError as error:
+                raise ConfigurationError(
+                    f"Invalid JSON in configuration file: {self.config_path}"
+                ) from error
+        return self._server_configs
 
-  @staticmethod
-  @asynccontextmanager
-  async def get_session(server_params: StdioServerParameters | SseServerParameters) -> ClientSession:
-    """Get a client MCP session.
-
-    Args:
-        server_params (StdioServerParameters | SseServerParameters): The server parameters.
-
-    Yields:
-        ClientSession: The client session for the MCP server.
-
-    """
-    client = stdio_client(server_params) if isinstance(server_params, StdioServerParameters) else sse_client(**server_params.model_dump())
-    async with (
-      client as (read, write),
-      ClientSession(read, write) as session,
-    ):
-      await session.initialize()
-      yield session
-
-  async def _fetch_langchain_tools(
-      self, server_name: str, params: StdioServerParameters
-  ) -> list[BaseTool]:
-    """List the available tools to call.
-
-    Args:
-        server_name (Server): The name of the server to create a session.
-        params (StdioServerParameters): The server parameters.
-
-    Returns:
-        list[BaseTool]: The available tools for the server as LangChain tools.
-
-    """
-    log.info(f"Listing tools for server: {server_name}")
-    async with self.get_session(params) as session:
-      list_tool_results: ListToolsResult = await session.list_tools()
-      all_tools: list[BaseTool] = []
-      for tool in list_tool_results.tools:
-        adaptor = await self.convert_mcp_to_langchain_tools(
-          server_name, tool, params
-        )
-        all_tools.append(adaptor)
-      return all_tools
-
-  @staticmethod
-  async def convert_mcp_to_langchain_tools(
-      server_name: str, tool: Tool, params: StdioServerParameters
-  ) -> BaseTool:
-    """Convert an MCP tool to a LangChain tool.
-
-    Args:
-        server_name (str): The name of the mcp server.
-        tool (Tool): The MCP tool to convert to LangChain Tool.
-        params (StdioServerParameters): The server parameters.
-    """
-    logger = getLogger(f"mcp_services.{server_name}.{tool.name}")
-
-    class McpLangchainAdaptor(BaseTool):
-      """Adaptor class to convert MCP tool to LangChain tool."""
-
-      name: str = tool.name
-      description: str = tool.description
-      args_schema: type[BaseModel] = jsonschema_to_pydantic(tool.inputSchema)
-
-      @staticmethod
-      @asynccontextmanager
-      async def get_session(
-          server_params: StdioServerParameters | SseServerParameters,
-      ) -> ClientSession:
+    @staticmethod
+    @asynccontextmanager
+    async def get_session(
+        server_params: StdioServerParameters | SseServerParameters,
+    ) -> ClientSession:
         """Get a client MCP session.
 
         Args:
@@ -140,59 +76,133 @@ class LangChainMcp:
             ClientSession: The client session for the MCP server.
 
         """
-        client = stdio_client(server_params) if isinstance(server_params, StdioServerParameters) else sse_client(**server_params.model_dump())
+        client = (
+            stdio_client(server_params)
+            if isinstance(server_params, StdioServerParameters)
+            else sse_client(**server_params.model_dump())
+        )
         async with (
-          client as (read, write),
-          ClientSession(read, write) as session,
+            client as (read, write),
+            ClientSession(read, write) as session,
         ):
-          await session.initialize()
-          yield session
+            await session.initialize()
+            yield session
 
-      def _run(self, **kwargs: dict) -> list:
-        """Execute the tool synchronously.
+    async def _fetch_langchain_tools(
+        self, server_name: str, params: StdioServerParameters
+    ) -> list[BaseTool]:
+        """List the available tools to call.
 
         Args:
-            **kwargs: The arguments to pass to the tool.
+            server_name (Server): The name of the server to create a session.
+            params (StdioServerParameters): The server parameters.
 
         Returns:
-            list: The results from the tool execution.
+            list[BaseTool]: The available tools for the server as LangChain tools.
+
         """
-
-        async def _run_async() -> list:
-          async with self.get_session(params) as session:
-            logger.info(
-              f"Calling tool {server_name}:{tool.name} "
-              f"with arguments {kwargs}"
-            )
-            results = await session.call_tool(self.name, kwargs)
-            return results
-
-        return asyncio.run(_run_async())
-
-      async def _arun(self, **kwargs: dict) -> list:
+        log.info(f"Listing tools for server: {server_name}")
         async with self.get_session(params) as session:
-          logger.info(
-            f"Calling tool {server_name}:{tool.name} "
-            f"with arguments {kwargs}"
-          )
-          results = await session.call_tool(self.name, kwargs)
-          return results
+            list_tool_results: ListToolsResult = await session.list_tools()
+            all_tools: list[BaseTool] = []
+            for tool in list_tool_results.tools:
+                adaptor = await self.convert_mcp_to_langchain_tools(
+                    server_name, tool, params
+                )
+                all_tools.append(adaptor)
+            return all_tools
 
-    return McpLangchainAdaptor()
+    @staticmethod
+    async def convert_mcp_to_langchain_tools(
+        server_name: str, tool: Tool, params: StdioServerParameters
+    ) -> BaseTool:
+        """Convert an MCP tool to a LangChain tool.
 
-  async def fetch_all_server_tools(self) -> list[BaseTool]:
-    """List the available tools for all servers.
+        Args:
+            server_name (str): The name of the mcp server.
+            tool (Tool): The MCP tool to convert to LangChain Tool.
+            params (StdioServerParameters): The server parameters.
+        """
+        logger = getLogger(f"mcp_services.{server_name}.{tool.name}")
 
-    Returns:
-        list[BaseTool]: The available tools for all servers as LangChain tools.
-    """
-    coroutines = [
-      self._fetch_langchain_tools(server_name, params)
-      for server_name, params in self.server_configs.mcpServers.items()
-    ]
-    results = await gather(*coroutines)
-    return [item for sublist in results for item in sublist]
+        class McpLangchainAdaptor(BaseTool):
+            """Adaptor class to convert MCP tool to LangChain tool."""
 
-  def list_mcp_tools(self) -> list[BaseTool]:
-    """Make async call to list all the available tools for all mcp servers."""
-    return asyncio.run(self.fetch_all_server_tools())
+            name: str = tool.name
+            description: str = tool.description
+            args_schema: type[BaseModel] = jsonschema_to_pydantic(tool.inputSchema)
+
+            @staticmethod
+            @asynccontextmanager
+            async def get_session(
+                server_params: StdioServerParameters | SseServerParameters,
+            ) -> ClientSession:
+                """Get a client MCP session.
+
+                Args:
+                    server_params (StdioServerParameters | SseServerParameters): The server parameters.
+
+                Yields:
+                    ClientSession: The client session for the MCP server.
+
+                """
+                client = (
+                    stdio_client(server_params)
+                    if isinstance(server_params, StdioServerParameters)
+                    else sse_client(**server_params.model_dump())
+                )
+                async with (
+                    client as (read, write),
+                    ClientSession(read, write) as session,
+                ):
+                    await session.initialize()
+                    yield session
+
+            def _run(self, **kwargs: dict) -> list:
+                """Execute the tool synchronously.
+
+                Args:
+                    **kwargs: The arguments to pass to the tool.
+
+                Returns:
+                    list: The results from the tool execution.
+                """
+
+                async def _run_async() -> list:
+                    async with self.get_session(params) as session:
+                        logger.info(
+                            f"Calling tool {server_name}:{tool.name} "
+                            f"with arguments {kwargs}"
+                        )
+                        results = await session.call_tool(self.name, kwargs)
+                        return results
+
+                return asyncio.run(_run_async())
+
+            async def _arun(self, **kwargs: dict) -> list:
+                async with self.get_session(params) as session:
+                    logger.info(
+                        f"Calling tool {server_name}:{tool.name} "
+                        f"with arguments {kwargs}"
+                    )
+                    results = await session.call_tool(self.name, kwargs)
+                    return results
+
+        return McpLangchainAdaptor()
+
+    async def fetch_all_server_tools(self) -> list[BaseTool]:
+        """List the available tools for all servers.
+
+        Returns:
+            list[BaseTool]: The available tools for all servers as LangChain tools.
+        """
+        coroutines = [
+            self._fetch_langchain_tools(server_name, params)
+            for server_name, params in self.server_configs.mcpServers.items()
+        ]
+        results = await gather(*coroutines)
+        return [item for sublist in results for item in sublist]
+
+    def list_mcp_tools(self) -> list[BaseTool]:
+        """Make async call to list all the available tools for all mcp servers."""
+        return asyncio.run(self.fetch_all_server_tools())

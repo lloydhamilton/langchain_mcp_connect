@@ -84,7 +84,7 @@ class TestLangChainMCP:
         assert isinstance(langchain_tool, LangChainBaseTool)
         assert langchain_tool.name == "get_file_contents"
         assert langchain_tool.description == (
-            "Retrieve the file contents of a file " "from a github repository"
+            "Retrieve the file contents of a file from a github repository"
         )
         assert issubclass(langchain_tool.args_schema, BaseModel)
 

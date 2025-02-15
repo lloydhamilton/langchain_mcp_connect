@@ -33,7 +33,6 @@ if "OPENAI_API_KEY" not in os.environ:
 
 
 if __name__ == "__main__":
-
     QUERY = "What tools do you have access to?"
 
     # Define the llm

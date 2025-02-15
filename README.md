@@ -59,10 +59,10 @@ of available tools and how to configure tools see [here](https://github.com/mode
       ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ENV_GITHUB_PERSONAL_ACCESS_TOKEN"
+      },
+      "sseService": {
+        "url": "http://localhost:8000/sse"
       }
-    },
-    "sseService": {
-      "url": "http://localhost:8000/sse"
     }
   }
 }
