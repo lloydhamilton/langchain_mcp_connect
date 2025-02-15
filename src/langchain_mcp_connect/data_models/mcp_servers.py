@@ -1,5 +1,6 @@
 import os
 import sys
+from typing import Any
 
 from mcp import StdioServerParameters
 from pydantic import BaseModel, Field, field_validator
@@ -44,6 +45,12 @@ def get_default_environment() -> dict[str, str]:
 
     return env
 
+class SseServerParameters(BaseModel):
+    """Data model for the sse server parameters."""
+    url: str
+    headers: dict[str, Any] | None = None
+    timeout: float = 5
+    sse_read_timeout: float = 60 * 5
 
 class StdioServerParameters(StdioServerParameters):
     """Data model for the stdio server parameters."""
@@ -68,26 +75,33 @@ class StdioServerParameters(StdioServerParameters):
                 env[key] = env_var
         return default_env | env
 
-
 class McpServers(BaseModel):
     """Data model for mcp servers."""
 
-    mcpServers: dict[str, StdioServerParameters] = Field(
+    mcpServers: dict[str, StdioServerParameters | SseServerParameters] = Field(
         ...,
         description="The list of mcp servers configurations.",
     )
 
     @field_validator("mcpServers", mode="before")
     @classmethod
-    def parse_configs(cls, mcpServers: dict) -> dict[any, StdioServerParameters]:
+    def parse_configs(cls, mcpServers: dict) -> dict[any, StdioServerParameters | SseServerParameters]:
         """Parse the mcp servers configurations.
 
         Args:
             mcpServers: The mcp servers configurations.
 
         Returns:
-            list[StdioServerParameters]: The list of mcp servers configurations.
+            list[StdioServerParameters | SseServerParameters]: The list of mcp servers configurations.
         """
         return {
-            server: StdioServerParameters(**mcpServers[server]) for server in mcpServers
+            server: cls.__mapParamters(mcpServers[server]) for server in mcpServers
         }
+
+    @staticmethod
+    def __mapParamters(server: dict) -> StdioServerParameters | SseServerParameters:
+        """Map the parameters to the correct type."""
+        if "url" in server:
+          return SseServerParameters(**server)
+        else:
+          return StdioServerParameters(**server)
