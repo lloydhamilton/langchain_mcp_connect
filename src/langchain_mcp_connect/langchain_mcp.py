@@ -4,6 +4,8 @@ from asyncio import gather
 from contextlib import asynccontextmanager
 from logging import getLogger
 
+from mcp.client.sse import sse_client
+
 try:
     from jsonschema_pydantic import jsonschema_to_pydantic
     from langchain_core.tools import BaseTool
@@ -19,7 +21,7 @@ except ImportError as e:
     ) from e
 
 
-from .data_models.mcp_servers import McpServers
+from .data_models.mcp_servers import McpServers, SseServerParameters
 
 log = getLogger("mcp_services.LangChainMcp")
 
@@ -67,14 +69,15 @@ class LangChainMcp:
         """Get a client MCP session.
 
         Args:
-            server_params (StdioServerParameters): The server parameters.
+            server_params (StdioServerParameters | SseServerParameters): The server parameters.
 
         Yields:
             ClientSession: The client session for the MCP server.
 
         """
+        client_type = stdio_client if isinstance(server_params, StdioServerParameters) else sse_client
         async with (
-            stdio_client(server_params) as (read, write),
+            client_type(server_params) as (read, write),
             ClientSession(read, write) as session,
         ):
             await session.initialize()
@@ -127,25 +130,25 @@ class LangChainMcp:
             @staticmethod
             @asynccontextmanager
             async def get_session(
-                server_params: StdioServerParameters,
+                server_params: StdioServerParameters | SseServerParameters,
             ) -> ClientSession:
                 """Get a client MCP session.
-
+            
                 Args:
-                    server_params (StdioServerParameters): The server parameters.
-
+                    server_params (StdioServerParameters | SseServerParameters): The server parameters.
+            
                 Yields:
                     ClientSession: The client session for the MCP server.
-
+            
                 """
+                client_type = stdio_client if isinstance(server_params, StdioServerParameters) else sse_client
                 async with (
-                    stdio_client(server_params) as (read, write),
+                    client_type(server_params) as (read, write),
                     ClientSession(read, write) as session,
                 ):
                     await session.initialize()
                     logger.info(f"Session created for {server_name}:{tool.name}")
                     yield session
-
             def _run(self, **kwargs: dict) -> list:
                 """Execute the tool synchronously.
 
