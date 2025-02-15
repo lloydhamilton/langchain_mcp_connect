@@ -45,12 +45,15 @@ def get_default_environment() -> dict[str, str]:
 
     return env
 
+
 class SseServerParameters(BaseModel):
     """Data model for the sse server parameters."""
+
     url: str
     headers: dict[str, Any] | None = None
     timeout: float = 5
     sse_read_timeout: float = 60 * 5
+
 
 class StdioServerParameters(StdioServerParameters):
     """Data model for the stdio server parameters."""
@@ -75,6 +78,7 @@ class StdioServerParameters(StdioServerParameters):
                 env[key] = env_var
         return default_env | env
 
+
 class McpServers(BaseModel):
     """Data model for mcp servers."""
 
@@ -85,7 +89,9 @@ class McpServers(BaseModel):
 
     @field_validator("mcpServers", mode="before")
     @classmethod
-    def parse_configs(cls, mcpServers: dict) -> dict[any, StdioServerParameters | SseServerParameters]:
+    def parse_configs(
+        cls, mcpServers: dict
+    ) -> dict[any, StdioServerParameters | SseServerParameters]:
         """Parse the mcp servers configurations.
 
         Args:
@@ -94,14 +100,12 @@ class McpServers(BaseModel):
         Returns:
             list[StdioServerParameters | SseServerParameters]: The list of mcp servers configurations.
         """
-        return {
-            server: cls.__mapParamters(mcpServers[server]) for server in mcpServers
-        }
+        return {server: cls.__mapParamters(mcpServers[server]) for server in mcpServers}
 
     @staticmethod
     def __mapParamters(server: dict) -> StdioServerParameters | SseServerParameters:
         """Map the parameters to the correct type."""
         if "url" in server:
-          return SseServerParameters(**server)
+            return SseServerParameters(**server)
         else:
-          return StdioServerParameters(**server)
+            return StdioServerParameters(**server)
