@@ -65,6 +65,7 @@ class TestLangChainMCP:
             "git",
             "filesystem",
             "github",
+            "sseService"
         ]
         assert lcp.server_configs == lcp._load_config()
 
