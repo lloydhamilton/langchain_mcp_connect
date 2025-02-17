@@ -25,9 +25,6 @@
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ENV_GITHUB_PERSONAL_ACCESS_TOKEN"
       }
-    },
-    "sseService": {
-      "url": "http://localhost:8000/sse"
     }
   }
 }
