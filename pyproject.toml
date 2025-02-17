@@ -13,12 +13,15 @@ dependencies = [
     "mcp>=1.2.0",
 ]
 
+[project.urls]
+GitHub = "https://github.com/lloydhamilton/langchain_mcp_connect"
+Issues = "https://github.com/lloydhamilton/langchain_mcp_connect/issues"
+
 [dependency-groups]
 dev = [
     "pytest>=8.3.4",
     "pytest-asyncio>=0.25.2",
 ]
-
 
 [tool.ruff.lint]
 select = [
