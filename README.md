@@ -35,7 +35,10 @@ For a detailed example on how `langchain_mcp_connect` can be used, see this [dem
 
 ### Defining a tool
 Define your tool within `claude_mcp_config.json` file in the root directory. For a list 
-of available tools and how to configure tools see [here](https://github.com/modelcontextprotocol/servers/tree/main). 
+of available tools and how to configure tools see [here](https://github.com/modelcontextprotocol/servers/tree/main).
+
+`langchain_mcp_connect` supports both stdio and HTTP with Server-Sent Events (SSE) [protocols](https://spec.modelcontextprotocol.io/specification/2024-11-05/basic/transports/).
+
 ```json
 {
   "mcpServers": {
@@ -59,10 +62,10 @@ of available tools and how to configure tools see [here](https://github.com/mode
       ],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "ENV_GITHUB_PERSONAL_ACCESS_TOKEN"
-      },
-      "sseService": {
-        "url": "http://localhost:8000/sse"
       }
+    },
+    "sseService": {
+      "url": "http://localhost:8000/sse"
     }
   }
 }

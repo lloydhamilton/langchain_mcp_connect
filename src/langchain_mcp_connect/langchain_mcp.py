@@ -70,7 +70,8 @@ class LangChainMcp:
         """Get a client MCP session.
 
         Args:
-            server_params (StdioServerParameters | SseServerParameters): The server parameters.
+            server_params (StdioServerParameters | SseServerParameters): The server
+                parameters.
 
         Yields:
             ClientSession: The client session for the MCP server.
@@ -140,7 +141,8 @@ class LangChainMcp:
                 """Get a client MCP session.
 
                 Args:
-                    server_params (StdioServerParameters | SseServerParameters): The server parameters.
+                    server_params (StdioServerParameters | SseServerParameters): The
+                        server parameters.
 
                 Yields:
                     ClientSession: The client session for the MCP server.
