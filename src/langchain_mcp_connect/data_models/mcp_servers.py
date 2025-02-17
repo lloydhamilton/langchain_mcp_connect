@@ -49,10 +49,19 @@ def get_default_environment() -> dict[str, str]:
 class SseServerParameters(BaseModel):
     """Data model for the sse server parameters."""
 
-    url: str
-    headers: dict[str, Any] | None = None
-    timeout: float = 5
-    sse_read_timeout: float = 60 * 5
+    url: str = Field(
+        ...,
+        description="The url of the sse server.",
+    )
+    headers: dict[str, Any] | None = Field(
+        None, description="The headers of the sse server."
+    )
+    timeout: float = Field(5, description="The timeout of the sse server.")
+    sse_read_timeout: float = Field(
+        60 * 5,
+        description="how long (in seconds) the client will wait for "
+        "a new event before disconnecting.",
+    )
 
 
 class StdioServerParameters(StdioServerParameters):
@@ -98,7 +107,8 @@ class McpServers(BaseModel):
             mcpServers: The mcp servers configurations.
 
         Returns:
-            list[StdioServerParameters | SseServerParameters]: The list of mcp servers configurations.
+            list[StdioServerParameters | SseServerParameters]: The list of mcp servers
+                configurations.
         """
         return {server: cls.__mapParamters(mcpServers[server]) for server in mcpServers}
 
